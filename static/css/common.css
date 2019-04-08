@@ -167,6 +167,7 @@ section#calendar {
 .swiper-slide>div>p.thu { margin-left: calc( 90vw / 7 * 4 ); }
 .swiper-slide>div>p.fri { margin-left: calc( 90vw / 7 * 5 ); }
 .swiper-slide>div>p.sat { margin-left: calc( 90vw / 7 * 6 ); }
+.swiper-slide>div>p.start::after,
 .swiper-slide>div>p.checked::after {
   content: "";
   position: absolute;
@@ -178,8 +179,13 @@ section#calendar {
   width:  70%;
   height: 70%;
   margin: auto;
-  background-color: rgba(255, 100, 0, .6);
   border-radius: 50%;
+}
+.swiper-slide>div>p.start::after {
+  background-color: rgba(0, 100, 255, .6);
+}
+.swiper-slide>div>p.checked::after {
+  background-color: rgba(255, 100, 0, .6);
 }
 .swiper-slide>div::before {
   content: "";
@@ -213,4 +219,24 @@ p#yyyymm {
   line-height: 1em;
   letter-spacing: 0;
   margin: 1em 5%;
+}
+
+section#info {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  margin: 1.5em auto 0;
+
+}
+section#info>div {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+section#info>div>p {
+  width: 50%;
+}
+p#days_place::before {
+  content: "\FFE5";
 }
