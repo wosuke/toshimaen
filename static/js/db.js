@@ -12,7 +12,7 @@ let openReq = indexedDB.open(dbName, dbVersion);
 // DBのバージョン更新（DBの新規作成も含む）時のみ実行
 openReq.onupgradeneeded = function (event) {
 
-  console.log('db upgrade');
+  window.alert('db upgrade');
 
   db = event.target.result;
   // オブジェクトストア（TABLEのようなもの）新規作成
@@ -23,7 +23,7 @@ openReq.onupgradeneeded = function (event) {
 // onupgradeneededの後に実行。更新がない場合はこれだけ実行
 openReq.onsuccess = function (event) {
 
-  console.log('db open success');
+  window.alert('db open success');
 
   db = event.target.result;
   // 接続の解除
@@ -33,7 +33,7 @@ openReq.onsuccess = function (event) {
 
 // 接続に失敗
 openReq.onerror = function (event) {
-  console.log('接続失敗');
+  window.alert('接続失敗');
 }
 
 function data_put(data){
