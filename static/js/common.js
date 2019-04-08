@@ -40,11 +40,13 @@ $(function(){
 });
 
 $(window).on('load',function(){
+  window.alert('check 1');
   // 開始日付を設定
   // ---- ローカルDBに、購入日が設定されていないか確認
   let arr_week_d = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
   // ---- ローカルDBに、チェック日付がある場合には変数に格納
   data_get('purchase_date').then(function(v){
+    window.alert('check 2');
     // make calendar
     if( v == false ) {
       // 購入日未設定
@@ -59,6 +61,7 @@ $(window).on('load',function(){
     tmp_date_c = new Date();
 
     data_get('check_date').then(function(vv){
+      window.alert('check 3');
       // ######################################################################################################################
       // ######################################################################################################################
       let tmp_tag = '';
