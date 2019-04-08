@@ -62,8 +62,9 @@ function data_delete(data){
 }
 
 function data_get(data){
+  window.alert('get 1');
   return new Promise(function(resolve, reject){
-
+    window.alert('get 2');
     var putdt = data;
     var trans = db.transaction(storeName);
     var store = trans.objectStore(storeName);
