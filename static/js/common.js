@@ -1,52 +1,32 @@
-let arr_date = [],
-    crr_mnth = 0,
-    tmp_date_s,
-    str_date_s,
-    day_length = 1,
-    tmp_date_c;
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// indexedDB
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+let db,
+    dbName    = 'passportDB',
+    dbVersion = '1',
+    storeName = 'date_info';
 
-$(function(){
+// DB名を指定して接続／なければ新規作成
+let openReq = indexedDB.open(dbName, dbVersion);
 
-  // day click
-  $(document).on('click','.swiper-slide>div>p',function(){
-    let tmp_day = $(this).attr('id');
-    if( str_date_s == tmp_day ) return false;
-    if( $(this).hasClass('checked') ) {
-      day_length--;
-      arr_date.splice(arr_date.indexOf(tmp_day),1);
-      $(this).removeClass('checked');
-    } else {
-      day_length++;
-      arr_date.push(tmp_day);
-      $(this).addClass('checked');
-    }
-    $('p#days_total').html( day_length );
-    $('p#days_place').html( (39960 / day_length).toLocaleString() );
-    // insert columb
-    let tmp_arr = {id:'check_date', val: arr_date};
-    data_put(tmp_arr);
-  });
+// DBのバージョン更新（DBの新規作成も含む）時のみ実行
+openReq.onupgradeneeded = function (event) {
+  db = event.target.result;
+  // オブジェクトストア（TABLEのようなもの）新規作成
+  db.createObjectStore(storeName, {keyPath : 'id'});
+}
 
-  $('#Purchase_submit').click(function(){
-    if( $("input[name='Purchase_date']").val() == undefined || $("input[name='Purchase_date']").val() == '' ) return false;
-    let set_strt = $("input[name='Purchase_date']").val();
-    if( arr_date.indexOf(set_strt.replace('-','.')) ==! -1 ) arr_date.splice(arr_date.indexOf(set_strt.replace('-','.')),1);
-    // DB: Insert/Update
-    let tmp_arr = {id:'purchase_date', val: set_strt};
-    data_put(tmp_arr);
-    location.reload();
-  });
+// onupgradeneededの後に実行。更新がない場合はこれだけ実行
+openReq.onsuccess = function (event) {
+  db = event.target.result;
 
-});
-
-$(window).on('load',function(){
-  window.alert('check 1');
+  // **********************************************************************************************
+  // **********************************************************************************************
   // 開始日付を設定
   // ---- ローカルDBに、購入日が設定されていないか確認
   let arr_week_d = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
   // ---- ローカルDBに、チェック日付がある場合には変数に格納
   data_get('purchase_date').then(function(v){
-    window.alert('check 2');
     // make calendar
     if( v == false ) {
       // 購入日未設定
@@ -61,9 +41,6 @@ $(window).on('load',function(){
     tmp_date_c = new Date();
 
     data_get('check_date').then(function(vv){
-      window.alert('check 3');
-      // ######################################################################################################################
-      // ######################################################################################################################
       let tmp_tag = '';
 
       if( vv instanceof Array === true ) {
@@ -132,13 +109,106 @@ $(window).on('load',function(){
 
       $('p#days_total').html( day_length );
       $('p#days_place').html( (39960 / day_length).toLocaleString() );
-      // ######################################################################################################################
-      // ######################################################################################################################
     });
   }).catch(function(error){
     window.alert(error);
   });
+  // **********************************************************************************************
+  // **********************************************************************************************
 
+}
+
+// 接続に失敗
+openReq.onerror = function (event) {
+  window.alert('接続失敗');
+}
+
+function data_put(data){
+  
+  if( data.id == undefined || data.val == undefined ) return false;
+
+  var putdt = { id: data.id, name: data.val };
+  var trans = db.transaction(storeName, 'readwrite');
+  var store = trans.objectStore(storeName);
+  var putRq = store.put(putdt);
+
+}
+
+function data_delete(data){
+
+  if( data.id == undefined ) return false;
+
+  var putdt = data.id;
+  var trans = db.transaction(storeName, 'readwrite');
+  var store = trans.objectStore(storeName);
+
+  store.delete(putdt);
+
+}
+
+function data_get(data){
+  return new Promise(function(resolve, reject){
+    var putdt = data;
+    var trans = db.transaction(storeName);
+    var store = trans.objectStore(storeName);
+    var request = store.get(putdt);
+
+    request.onerror = function(e){
+      resolve(false);
+    };
+    request.onsuccess = function(e){
+      if( e.target.result == undefined ) {
+        resolve(false);
+      } else {
+        resolve(e.target.result.name);
+      }
+    };
+
+  });
+}
+
+let arr_date = [],
+    crr_mnth = 0,
+    tmp_date_s,
+    str_date_s,
+    day_length = 1,
+    tmp_date_c;
+
+$(function(){
+
+  // day click
+  $(document).on('click','.swiper-slide>div>p',function(){
+    let tmp_day = $(this).attr('id');
+    if( str_date_s == tmp_day ) return false;
+    if( $(this).hasClass('checked') ) {
+      day_length--;
+      arr_date.splice(arr_date.indexOf(tmp_day),1);
+      $(this).removeClass('checked');
+    } else {
+      day_length++;
+      arr_date.push(tmp_day);
+      $(this).addClass('checked');
+    }
+    $('p#days_total').html( day_length );
+    $('p#days_place').html( (39960 / day_length).toLocaleString() );
+    // insert columb
+    let tmp_arr = {id:'check_date', val: arr_date};
+    data_put(tmp_arr);
+  });
+
+  $('#Purchase_submit').click(function(){
+    if( $("input[name='Purchase_date']").val() == undefined || $("input[name='Purchase_date']").val() == '' ) return false;
+    let set_strt = $("input[name='Purchase_date']").val();
+    if( arr_date.indexOf(set_strt.replace('-','.')) ==! -1 ) arr_date.splice(arr_date.indexOf(set_strt.replace('-','.')),1);
+    // DB: Insert/Update
+    let tmp_arr = {id:'purchase_date', val: set_strt};
+    data_put(tmp_arr);
+    location.reload();
+  });
+
+});
+
+$(window).on('load',function(){
 });
 
 var swiper;
